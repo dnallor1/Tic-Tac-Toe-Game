@@ -1,4 +1,5 @@
 import math
+import random
 
 X = "X"
 O = "O"
@@ -65,12 +66,13 @@ def utility(board):
         return -1
     return 0
 
-
-def minimax(board):
+def minimax(board, randomness=0.3): #difficulty level (0 - )
+    # (0 for optimal action, 1 for most random action)
     """Returns the optimal action for the current player on the board."""
     if terminal(board):
         return None
 
+    # Compute best actions first (optimal actions without randomness)
     def max_value(board):
         if terminal(board):
             return utility(board)
@@ -88,7 +90,7 @@ def minimax(board):
         return v
 
     current_player = player(board)
-    best_action = None
+    best_actions = []
 
     if current_player == X:
         best_value = -math.inf
@@ -96,12 +98,32 @@ def minimax(board):
             action_value = min_value(result(board, action))
             if action_value > best_value:
                 best_value = action_value
-                best_action = action
+                best_actions = [action]  
+            elif action_value == best_value:
+                best_actions.append(action)
     else:
         best_value = math.inf
         for action in actions(board):
             action_value = max_value(result(board, action))
             if action_value < best_value:
                 best_value = action_value
-                best_action = action
-    return best_action
+                best_actions = [action]  
+            elif action_value == best_value:
+                best_actions.append(action)
+
+    optimal_action = random.choice(best_actions)
+    print("\n=======================================")
+    print("----- AI Decision Making -----")
+    print(f"Optimal action would have been: {optimal_action}")   #best action
+
+    random_value = random.random()  #randomness in decision-making
+    print(f"Random value: {random_value} (randomness threshold: {randomness})")
+    
+    if random_value < randomness:
+        available_actions = list(actions(board))
+        random_action = random.choice(available_actions)
+        print(f"Random action selected: {random_action}")
+        return random_action
+
+    print(f"Optimal action selected: {optimal_action}")
+    return optimal_action
